@@ -15,3 +15,10 @@ variable "prefixes" {
   type        = list(string)
   default     = ["raw/", "processed/", "features/", "artifacts/"]
 }
+
+
+variable "enable_lifecycle_rules" {
+  description = "whether lifecycle rules are enabled"
+  type        = bool
+  default     = true
+}
