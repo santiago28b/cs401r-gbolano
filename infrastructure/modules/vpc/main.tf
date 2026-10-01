@@ -81,6 +81,13 @@ resource "aws_security_group" "this" {
     cidr_blocks = [var.vpc_cidr]
 
   }
+  ingress {
+    description = "All traffic between members of this group - required by Glue"
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    self        = true
+  }
   egress {
     description = "ALL traffic from out of this VPC"
     protocol    = "-1"
