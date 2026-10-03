@@ -43,6 +43,7 @@ STRING_COLS = ["payment_method", "channel", "store_id", "product_category"]
 
 
 def cast_types(df):
+    
     """Cast every column to its SCHEMA type. Drop rows with no customer_id.
 
     Three things to handle, in this order:
@@ -63,11 +64,29 @@ def cast_types(df):
     key for every downstream feature, so a row without it cannot be
     attributed to anyone.
     """
-    # TODO: your implementation here
-    raise NotImplementedError("cast_types is not implemented")
+     # 1 + 2: trim every column, then turn "" into a real null
+    for c in df.columns:
+            trimmed = F.trim(F.col(c))
+            df = df.withColumn(c, F.when(trimmed == "", F.lit(None)).otherwise(trimmed))
+        
+    
+        # 3: parse purchase_date - try ISO first, then MM/dd/yyyy, keep whichever worked
+    iso = F.to_date(F.col("purchase_date"), "yyyy-MM-dd")
+    us  = F.to_date(F.col("purchase_date"), "MM/dd/yyyy")
+    df = df.withColumn("purchase_date", F.coalesce(iso, us))
+
+        # cast the rest to their SCHEMA types (purchase_date is already a date)
+    for c, t in SCHEMA.items():
+        if c != "purchase_date":
+            df = df.withColumn(c, F.col(c).cast(t))
+            
+    
+        # drop rows with no customer_id
+    return df.filter(df.customer_id.isNotNull())
 
 
 def impute_nulls(df):
+
     """Numeric columns -> column median. String columns -> 'unknown'.
 
     Use the MEDIAN, not the mean. order_value is right-skewed: a handful
@@ -79,11 +98,24 @@ def impute_nulls(df):
 
     Numeric columns: NUMERIC_COLS.  String columns: STRING_COLS.
     """
-    # TODO: your implementation here
-    raise NotImplementedError("impute_nulls is not implemented")
+    fill = {}
+
+    for c in NUMERIC_COLS:
+        median = df.approxQuantile(c, [0.5], 0.0)[0]                      
+        if c == "num_items":
+            median = int(round(median))                
+        fill[c] = median
+
+    for c in STRING_COLS:
+        fill[c] = "unknown"
+
+    return df.fillna(fill)                 
+    
+    
 
 
 def deduplicate(df):
+
     """Keep one row per transaction_id.
 
     Deduplicate on transaction_id, NOT on customer_id. A customer is
@@ -101,8 +133,12 @@ def deduplicate(df):
     A window function with row_number() over a partition by transaction_id
     is the idiomatic approach.
     """
-    # TODO: your implementation here
-    raise NotImplementedError("deduplicate is not implemented")
+    w = Window.partitionBy("transaction_id").orderBy(F.col("purchase_date").desc(), F.col("order_value").desc())
+
+    return (df
+            .withColumn("rn", F.row_number().over(w))
+            .filter(F.col('rn')==1)
+            .drop("rn"))
 
 
 def main():
