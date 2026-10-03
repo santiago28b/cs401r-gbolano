@@ -1,0 +1,32 @@
+==> Lab 2 teardown
+    Account : 031310758774
+    Region  : us-east-1
+    Bucket  : northstar-dev-data-031310758774
+
+[1/7] Bucket northstar-dev-data-031310758774 not present - skipping
+[2/7] Removing Feature Store Glue catalog database
+      not present
+[2b/7] Removing orphaned Glue network interfaces
+[3/7] terraform destroy
+
+[0mEither you have not created any objects yet or the existing objects were
+already deleted outside of Terraform.
+[0m[1m[32m
+Destroy complete! Resources: 0 destroyed.[0m
+[4/7] Removing orphaned SageMaker Studio EFS filesystems
+[5/7] Removing orphaned ENIs and SageMaker NFS security groups
+[6/7] Removing orphaned SageMaker lineage contexts and artifacts
+[7/7] Verifying teardown
+      NAT gateways           OK
+      Elastic IPs            OK
+      SageMaker domains      OK
+      Feature groups         OK
+      EFS filesystems        OK
+      Glue jobs              OK
+      NorthStar VPCs         OK
+      Lineage contexts       OK
+      Lineage artifacts      OK
+      Glue databases         OK
+
+==> Teardown complete. No billable Lab 2 resources remain.
+    The Terraform state bucket is intentionally retained for Lab 3.
