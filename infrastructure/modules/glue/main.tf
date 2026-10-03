@@ -58,3 +58,33 @@ resource "aws_glue_job" "transform" {
     "--output_path"   = "s3://${var.bucket_name}/processed/customers/"
   }
 }
+
+resource "aws_s3_object" "feature_script" {
+  bucket = var.bucket_name
+  key    = "artifacts/glue/feature_engineer.py"
+  source = "${path.module}/../../../glue-scripts/feature_engineer.py"
+  etag   = filemd5("${path.module}/../../../glue-scripts/feature_engineer.py")
+}
+
+resource "aws_glue_job" "feature_engineer" {
+  name              = "${var.project}-${var.environment}-feature-engineer"
+  role_arn          = var.data_engineer_role_arn
+  glue_version      = "4.0"
+  worker_type       = "G.1X"
+  number_of_workers = 2
+  timeout           = 30
+  connections       = [aws_glue_connection.vpc.name]
+
+  command {
+    name            = "glueetl"
+    script_location = "s3://${var.bucket_name}/${aws_s3_object.feature_script.key}"
+    python_version  = "3"
+  }
+
+  default_arguments = {
+    "--input_path"         = "s3://${var.bucket_name}/processed/customers/"
+    "--output_path"        = "s3://${var.bucket_name}/features/customers/"
+    "--feature_group_name" = var.feature_group_name
+    "--region"             = var.region
+  }
+}

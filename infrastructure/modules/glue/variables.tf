@@ -32,3 +32,13 @@ variable "availability_zone" {
   description = "Availability Zone of the private subnet"
   type        = string
 }
+
+variable "feature_group_name" {
+  description = "Feature Group the feature engineering job ingests into"
+  type        = string
+}
+
+variable "region" {
+  description = "AWS region for the Feature Store runtime client"
+  type        = string
+}
