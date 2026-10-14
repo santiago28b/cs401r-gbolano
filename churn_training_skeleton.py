@@ -751,6 +751,7 @@ def main():
         )
 
     # 2. Preprocess
+    df = df.dropna(subset=[LABEL_COLUMN]).reset_index(drop=True)
     X, y = preprocess_features(df)
 
     # 3. Train/validation split (temporal split is better — split by customer_id here for simplicity)
@@ -765,8 +766,8 @@ def main():
     #   X_train, X_val, y_train, y_val, tier_train, tier_val = train_test_split(
     #       X, y, df[SLICE_COLUMN], test_size=0.30, random_state=42, stratify=y)
     # Re-deriving the tiers afterwards from df will NOT line up.
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.30, random_state=42, stratify=y
+    X_train, X_val, y_train, y_val,tier_train,tier_val = train_test_split(
+        X, y,df[SLICE_COLUMN], test_size=0.30, random_state=42, stratify=y
     )
     print(f"\nTrain: {len(X_train):,} | Validation: {len(X_val):,}")
 
