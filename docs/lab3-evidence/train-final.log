@@ -1,0 +1,60 @@
+sagemaker.config INFO - Not applying SDK defaults from location: /Library/Application Support/sagemaker/config.yaml
+sagemaker.config INFO - Not applying SDK defaults from location: /Users/santiago/Library/Application Support/sagemaker/config.yaml
+/Users/santiago/miniconda3/envs/cs401r-glue/lib/python3.10/site-packages/sagemaker/__init__.py:86: SageMakerV2DeprecationWarning: You are using the SageMaker Python SDK v2, which is on path of deprecation. v3 is the actively developed major version.
+See https://github.com/aws/sagemaker-python-sdk/blob/master/migration.md for the migration guide. Set SAGEMAKER_SUPPRESS_V2_WARNING=1 to silence this warning.
+  warn_v2_deprecation()
+You are using the SageMaker Python SDK v2, which is on path of deprecation. v3 is the actively developed major version.
+See https://github.com/aws/sagemaker-python-sdk/blob/master/migration.md for the migration guide. Set SAGEMAKER_SUPPRESS_V2_WARNING=1 to silence this warning.
+============================================================
+NorthStar Churn Prediction — Training Script
+============================================================
+Athena QueryExecutionId: 20de0237-894b-44e4-909f-397a7fa46d74
+rows of the df:  9999
+Preprocessing 9,999 samples...
+  Positive class rate: 22.0%
+  Feature matrix shape: (9999, 11)
+
+Train: 6,999 | Validation: 3,000
+
+Training XGBoost with params: {
+  "objective": "binary:logistic",
+  "eval_metric": [
+    "logloss",
+    "auc"
+  ],
+  "max_depth": 6,
+  "eta": 0.1,
+  "min_child_weight": 5,
+  "subsample": 0.8,
+  "colsample_bytree": 0.8,
+  "scale_pos_weight": 3.544805194805195,
+  "seed": 42,
+  "verbosity": 1
+}
+[0]	train-logloss:0.66905	train-auc:0.77953	validation-logloss:0.67117	validation-auc:0.74242
+[25]	train-logloss:0.48429	train-auc:0.85604	validation-logloss:0.52254	validation-auc:0.78068
+[29]	train-logloss:0.47673	train-auc:0.86123	validation-logloss:0.51909	validation-auc:0.78040
+/Users/santiago/Desktop/401/northstar/cs401r-gbolano/churn_training_skeleton.py:700: UserWarning: [12:01:27] WARNING: /Users/runner/work/xgboost/xgboost/src/c_api/c_api.cc:1573: Saving model in the UBJSON format as default.  You can use a file extension: `json` or `ubj` to choose between formats.
+  model.save_model(model_path)
+
+── Evaluation Results ──────────────────────────────
+  precision_top10          : 0.7100  (threshold: 0.5000)  ✓ PASS
+  recall_top10             : 0.3227  (threshold: 0.2500)  ✓ PASS
+  auc_lift 95% CI          : [0.0373, 0.0756]  (must exclude 0)  ✓ PASS
+  All thresholds passed ✓
+
+── Slice evaluation ──
+    tier    n  positives      auc  recall_top10  too_small  flag
+  Bronze 1071        361 0.755872      0.448753      False False
+    Gold  483         52 0.744155      0.115385      False  True
+Platinum  307         21 0.883450      0.095238       True False
+  Silver 1139        226 0.711134      0.190265      False  True
+
+✓ Model saved to /tmp/l3-model/model.xgb
+✓ Registered arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/6 (PendingManualApproval)
+🏃 View run final-depth6-autoweight at: https://mlflow.sagemaker.us-east-1.app.aws/#/experiments/1/runs/aa374bd3c138471e821df68887d4000e
+🧪 View experiment at: https://mlflow.sagemaker.us-east-1.app.aws/#/experiments/1
+
+============================================================
+Training complete. AUC-ROC: 0.7804
+============================================================
