@@ -190,6 +190,7 @@ LABEL_COLUMN = "churn_label"
 # out of FEATURE_COLUMNS: loyalty_tier correlates with spend, and feeding it in
 # both leaks and makes the per-tier fairness check circular.
 SLICE_COLUMN = "loyalty_tier"
+MIN_SLICE_POSITIVES = 30
 
 
 def load_features_from_feature_store(feature_group_name: str,
@@ -587,18 +588,27 @@ def evaluate_slices(model: xgb.Booster,
     Evaluate model performance by slice (e.g., loyalty_tier, age_band).
     Flag slices where recall@10% drops more than 10pp below aggregate.
 
-    TODO: Implement this function in Lab 3.
     """
     dval = xgb.DMatrix(X_val, feature_names=FEATURE_COLUMNS)
     y_pred_proba = model.predict(dval)
-    aggregate_recall = None  # TODO: compute
+    cutoff = np.percentile(y_pred_proba, 90)    
+    flagged = y_pred_proba >= cutoff        
+
+    aggregate_recall = y_val[flagged].sum() /y_val.sum() if y_val.sum() > 0 else 0.0 
 
     slice_results = {}
-    for slice_value in slice_column.unique():
+    for slice_value in sorted(slice_column.unique()):
         mask = (slice_column == slice_value).values
-        # TODO: compute recall@10% for this slice
         # Flag if recall < aggregate_recall - 0.10
-        pass
+        y_s, p_s = y_val[mask], y_pred_proba[mask]
+        p_s_flagged = p_s >= cutoff
+        auc_s = float(roc_auc_score(y_s,p_s)) if len(np.unique(y_s)) == 2 else float("nan")
+        recall_s = float(y_s[p_s_flagged].sum() / y_s.sum() if y_s.sum()>0 else 0.0)                         # this tier's churners above the line / this tier's churners
+        slice_results[slice_value]= {"tier":slice_value, "n": len(y_s), "positives": int(y_s.sum()), "auc": auc_s,
+                     "recall_top10": recall_s, "too_small": int(y_s.sum()) < MIN_SLICE_POSITIVES,
+                     "flag": int(y_s.sum()) >= MIN_SLICE_POSITIVES and recall_s < aggregate_recall -0.10}
+
+    
 
     return slice_results
 
@@ -777,6 +787,11 @@ def main():
     # 5. Evaluate
     baseline_proba = train_recency_baseline(X_train, y_train, X_val)
     metrics = evaluate_model(model, X_val, y_val, baseline_proba)
+    slices = evaluate_slices(model, X_val, y_val, tier_val)
+    slice_df = pd.DataFrame(list(slices.values()))
+    slice_df.to_csv(os.path.join(args.output_data_dir, "slice-evaluation.csv"), index=False)
+    print("\n── Slice evaluation ──")
+    print(slice_df.to_string(index=False))
 
     # 6. Save and register
     save_and_register_model(model, metrics, args)
