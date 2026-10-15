@@ -715,24 +715,43 @@ def save_and_register_model(model: xgb.Booster,
     with open(os.path.join(args.model_dir, "model_metadata.json"), "w") as f:
         json.dump(metadata, f, indent=2)
 
-    # TODO: Register in SageMaker Model Registry
-    # The model package group must be "northstar-churn-models" -- Lab 5 deploys
-    # from that group by name, so any other name breaks Lab 5.
-    # Include the evaluation metrics in the model card / description
-    # Status must be "PendingManualApproval" — never "Approved" from this script
-    #
-    # sm_client = boto3.client("sagemaker")
-    # sm_client.create_model_package(
-    #     ModelPackageGroupName="northstar-churn-models",
-    #     ModelPackageDescription=f"Churn model trained {datetime.utcnow().date()}",
-    #     InferenceSpecification={...},
-    #     ModelApprovalStatus="PendingManualApproval",
-    #     CustomerMetadataProperties={
-    #         k: str(v) for k, v in metrics.items()
-    #     },
-    # )
-    print("TODO: Register model in SageMaker Model Registry (see comments above)")
+        # 1. Pack the model as model.tar.gz (SageMaker's expected format)
+    import tarfile
+    tar_path = os.path.join(args.model_dir, "model.tar.gz")
+    with tarfile.open(tar_path, "w:gz") as tar:
+        tar.add(model_path, arcname="xgboost-model")   # name the XGBoost container looks for
 
+    # 2. Upload under artifacts/ (the only prefix MLEngineer can write)
+    run_tag = args.run_name or datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    s3_key = f"artifacts/models/churn/{run_tag}/model.tar.gz"
+    boto3.client("s3").upload_file(tar_path, args.artifacts_bucket, s3_key)
+    model_data_url = f"s3://{args.artifacts_bucket}/{s3_key}"
+
+    # 3. Group exists? (create once, ignore if it already does)
+    sm = boto3.client("sagemaker")
+    group = "northstar-churn-models"
+    try:
+        sm.create_model_package_group(ModelPackageGroupName=group,
+            ModelPackageGroupDescription="NorthStar churn models (Lab 3)")
+    except sm.exceptions.ClientError as e:
+        if "already exists" not in str(e):
+            raise
+
+    # 4. Register the version
+    region = boto3.session.Session().region_name
+    image = sagemaker.image_uris.retrieve("xgboost", region, "1.7-1")
+    resp = sm.create_model_package(
+        ModelPackageGroupName=group,
+        ModelPackageDescription=f"Churn model {run_tag}, AUC {metrics['auc_roc']}",
+        InferenceSpecification={
+            "Containers": [{"Image": image, "ModelDataUrl": model_data_url}],
+            "SupportedContentTypes": ["text/csv"],
+            "SupportedResponseMIMETypes": ["text/csv"],
+        },
+        ModelApprovalStatus="PendingManualApproval",
+        CustomerMetadataProperties={k: str(v) for k, v in metrics.items()},
+    )
+    print(f"✓ Registered {resp['ModelPackageArn']} (PendingManualApproval)")
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
