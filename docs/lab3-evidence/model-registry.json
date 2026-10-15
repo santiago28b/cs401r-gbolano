@@ -1,0 +1,119 @@
+{
+  "ModelPackageGroupName": "northstar-churn-models",
+  "Versions": [
+    {
+      "ModelPackageArn": "arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/6",
+      "ModelPackageVersion": 6,
+      "ModelApprovalStatus": "PendingManualApproval",
+      "CreationTime": "2026-10-15 12:01:28.760000-06:00",
+      "ModelPackageDescription": "Churn model final-depth6-autoweight, AUC 0.7804",
+      "CustomerMetadataProperties": {
+        "auc_roc": "0.7804",
+        "auc_vs_baseline": "0.0571",
+        "baseline_auc": "0.7233",
+        "eval_timestamp": "2026-10-15T18:01:26.884293",
+        "lift_ci_high": "0.0756",
+        "lift_ci_low": "0.0373",
+        "n_val_samples": "3000",
+        "positive_rate_val": "0.22",
+        "precision_top10": "0.71",
+        "recall_top10": "0.3227"
+      }
+    },
+    {
+      "ModelPackageArn": "arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/5",
+      "ModelPackageVersion": 5,
+      "ModelApprovalStatus": "PendingManualApproval",
+      "CreationTime": "2026-10-15 11:27:26.020000-06:00",
+      "ModelPackageDescription": "Churn model exp3-no-weight, AUC 0.7805",
+      "CustomerMetadataProperties": {
+        "auc_roc": "0.7805",
+        "auc_vs_baseline": "0.0572",
+        "baseline_auc": "0.7233",
+        "eval_timestamp": "2026-10-15T17:27:24.186577",
+        "lift_ci_high": "0.0756",
+        "lift_ci_low": "0.0376",
+        "n_val_samples": "3000",
+        "positive_rate_val": "0.22",
+        "precision_top10": "0.7033",
+        "recall_top10": "0.3197"
+      }
+    },
+    {
+      "ModelPackageArn": "arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/4",
+      "ModelPackageVersion": 4,
+      "ModelApprovalStatus": "PendingManualApproval",
+      "CreationTime": "2026-10-15 11:14:58.019000-06:00",
+      "ModelPackageDescription": "Churn model exp2-shallow, AUC 0.7802",
+      "CustomerMetadataProperties": {
+        "auc_roc": "0.7802",
+        "auc_vs_baseline": "0.0569",
+        "baseline_auc": "0.7233",
+        "eval_timestamp": "2026-10-15T17:14:56.176799",
+        "lift_ci_high": "0.0752",
+        "lift_ci_low": "0.0377",
+        "n_val_samples": "3000",
+        "positive_rate_val": "0.22",
+        "precision_top10": "0.7167",
+        "recall_top10": "0.3258"
+      }
+    },
+    {
+      "ModelPackageArn": "arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/3",
+      "ModelPackageVersion": 3,
+      "ModelApprovalStatus": "PendingManualApproval",
+      "CreationTime": "2026-10-15 11:14:20.099000-06:00",
+      "ModelPackageDescription": "Churn model exp1-default, AUC 0.7804",
+      "CustomerMetadataProperties": {
+        "auc_roc": "0.7804",
+        "auc_vs_baseline": "0.0571",
+        "baseline_auc": "0.7233",
+        "eval_timestamp": "2026-10-15T17:14:18.265061",
+        "lift_ci_high": "0.0756",
+        "lift_ci_low": "0.0373",
+        "n_val_samples": "3000",
+        "positive_rate_val": "0.22",
+        "precision_top10": "0.71",
+        "recall_top10": "0.3227"
+      }
+    },
+    {
+      "ModelPackageArn": "arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/2",
+      "ModelPackageVersion": 2,
+      "ModelApprovalStatus": "PendingManualApproval",
+      "CreationTime": "2026-10-15 11:09:07.161000-06:00",
+      "ModelPackageDescription": "Churn model test-plots, AUC 0.7804",
+      "CustomerMetadataProperties": {
+        "auc_roc": "0.7804",
+        "auc_vs_baseline": "0.0571",
+        "baseline_auc": "0.7233",
+        "eval_timestamp": "2026-10-15T17:09:02.700604",
+        "lift_ci_high": "0.0756",
+        "lift_ci_low": "0.0373",
+        "n_val_samples": "3000",
+        "positive_rate_val": "0.22",
+        "precision_top10": "0.71",
+        "recall_top10": "0.3227"
+      }
+    },
+    {
+      "ModelPackageArn": "arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/1",
+      "ModelPackageVersion": 1,
+      "ModelApprovalStatus": "PendingManualApproval",
+      "CreationTime": "2026-10-15 10:55:56.416000-06:00",
+      "ModelPackageDescription": "Churn model test-register, AUC 0.7804",
+      "CustomerMetadataProperties": {
+        "auc_roc": "0.7804",
+        "auc_vs_baseline": "0.0571",
+        "baseline_auc": "0.7233",
+        "eval_timestamp": "2026-10-15T16:55:55.128599",
+        "lift_ci_high": "0.0756",
+        "lift_ci_low": "0.0373",
+        "n_val_samples": "3000",
+        "positive_rate_val": "0.22",
+        "precision_top10": "0.71",
+        "recall_top10": "0.3227"
+      }
+    }
+  ]
+}
