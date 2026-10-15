@@ -646,33 +646,32 @@ def track_run(args, metrics: dict, scale_pos_weight: float) -> None:
          is the SigV4 auth plugin for arn:aws:sagemaker:... tracking URIs.
          Without it you get a connection error that never mentions credentials.
 
-    TODO: Implement this function.
     """
     if not args.mlflow_arn:
         print("\n(no --mlflow-arn given; skipping experiment tracking)")
         return
 
-    # TODO: log this run to the MLflow App.
-    #
-    # import mlflow
-    #
-    # mlflow.set_tracking_uri(args.mlflow_arn)   # the App ARN, verbatim
-    # mlflow.set_experiment(args.mlflow_experiment)
-    #
-    # with mlflow.start_run(run_name=args.run_name):
-    #     mlflow.log_params({
-    #         "max_depth": args.max_depth,
-    #         "eta": args.eta,
-    #         "num_round": args.num_round,
-    #         "min_child_weight": args.min_child_weight,
-    #         "subsample": args.subsample,
-    #         "colsample_bytree": args.colsample_bytree,
-    #         "scale_pos_weight": scale_pos_weight,
-    #         "xgboost_version": xgb.__version__,   # see below -- this matters
-    #     })
-    #     mlflow.log_metrics({
-    #         k: v for k, v in metrics.items() if isinstance(v, (int, float))
-    #     })
+    
+    import mlflow
+    
+    mlflow.set_tracking_uri(args.mlflow_arn)   # the App ARN, verbatim
+    mlflow.set_experiment(args.mlflow_experiment)
+    
+    with mlflow.start_run(run_name=args.run_name):
+        mlflow.log_params({
+            "max_depth": args.max_depth,
+            "eta": args.eta,
+            "num_round": args.num_round,
+            "min_child_weight": args.min_child_weight,
+            "subsample": args.subsample,
+            "colsample_bytree": args.colsample_bytree,
+            "scale_pos_weight": scale_pos_weight,
+            "xgboost_version": xgb.__version__,   # see below -- this matters
+            "feature_count": len(FEATURE_COLUMNS)
+        })
+        mlflow.log_metrics({
+            k: v for k, v in metrics.items() if isinstance(v, (int, float))
+        })
     #
     # LOG THE XGBOOST VERSION AS A PARAM. Lab 3 documents that identical data
     # and an identical split produce different metrics on XGBoost 3.2.0 vs 1.7
@@ -684,9 +683,6 @@ def track_run(args, metrics: dict, scale_pos_weight: float) -> None:
     # hyperparameters and different seeds is the same experiment three times;
     # it earns 2 of 5. Vary something you can defend, and be able to say what
     # the variation did to the metrics.
-
-    print("TODO: Log run to MLflow App (see comments above)")
-
 
 # ── Model Saving & Registry ────────────────────────────────────────────────────
 
