@@ -753,6 +753,27 @@ def save_and_register_model(model: xgb.Booster,
     )
     print(f"✓ Registered {resp['ModelPackageArn']} (PendingManualApproval)")
 
+def save_plots(model, X_val, y_val, out_dir):
+    import matplotlib
+    matplotlib.use("Agg")                     # save to file, no window
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+    proba = model.predict(xgb.DMatrix(X_val, feature_names=FEATURE_COLUMNS))
+
+    # Confusion matrix at the top-10% cutoff (the business threshold: who we contact)
+    cutoff = np.percentile(proba, 90)
+    y_pred = (proba >= cutoff).astype(int)
+    cm = confusion_matrix(y_val, y_pred)
+    ConfusionMatrixDisplay(cm, display_labels=["stay", "churn"]).plot(cmap="Blues")
+    plt.title("Confusion matrix @ top-10% cutoff")
+    plt.savefig(os.path.join(out_dir, "confusion-matrix.png"), dpi=120, bbox_inches="tight")
+    plt.close()
+
+    xgb.plot_importance(model, importance_type="gain", show_values=False)
+    plt.title("Feature importance (gain)")
+    plt.savefig(os.path.join(out_dir, "feature-importance.png"), dpi=120, bbox_inches="tight")
+    plt.close()
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -807,6 +828,8 @@ def main():
     slice_df.to_csv(os.path.join(args.output_data_dir, "slice-evaluation.csv"), index=False)
     print("\n── Slice evaluation ──")
     print(slice_df.to_string(index=False))
+
+    save_plots(model, X_val, y_val, args.output_data_dir)
 
     # 6. Save and register
     save_and_register_model(model, metrics, args)
