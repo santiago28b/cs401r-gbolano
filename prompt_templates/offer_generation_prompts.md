@@ -127,15 +127,14 @@ Silver ($500 - $1,999.99):
 - Appropriate incentive: modest discount, bonus points, or early access
 - Near-threshold framing works well here - Gold begins at $2,000
 
-Gold ($2,000 - $9,999.99):
+Gold ($2,000 - $4,999.99):
 - Entitled to: 1.5x points, free standard shipping at any amount, free return
-  shipping, 24-hour early access, 2 free gear repairs per year, free expedited
-  shipping on orders over $200
+  shipping, 24-hour early access, 2 free gear repairs per year
 - NOT entitled to: the 60-day return window (that is Platinum only)
 - Appropriate incentive: bonus points, early access, or a moderate discount
 - Acknowledge Gold status explicitly
 
-Platinum ($10,000+):
+Platinum ($5,000+):
 - Entitled to: 2x points, 60-day return window, free return shipping, 48-hour
   early access, unlimited gear repair, dedicated support line, $100 annual gear credit
 - Appropriate incentive: recognition and exclusivity over discounting
