@@ -16,10 +16,12 @@ The confidence interval replaced the AUC threshold since we want to base our ins
 ## 2. Baseline comparison
 | Model | AUC |
 |---|---|
-| Recency only (simple rule, `churn_risk_score`) | 0.7233 |
+| Recency-only XGBoost (`days_since_last_purchase` alone) | 0.7233 |
 | Full model (XGBoost, 11 features) | 0.7804 |
 | **Lift** | **+0.0571** |
 | 95% CI (paired bootstrap, 2,000 resamples) | [0.0373, 0.0756] |
+
+`churn_risk_score` was left out of the features. It is a recency rule, so it would just repeat the baseline. Because it was never used, there is no with/without comparison to report.
 
 I can confidently claim that the model ranks churners better than the simple rule, and this is backed by numbers: by at least 0.037 AUC. Honestly, it is a modest improvement, not a huge one, but it can help us reach the right people and offer them the right promotions and discounts. NorthStar wants the top 10% contact list filled with real churners, not people who will stay anyway and do not need to be reached out to. Since some customers are easier to predict than others, the bootstrap is paired: the model and the simple rule are scored on the same customers in every resample, so the comparison is fair. An example would be two students taking different exams: there is no way to compare who did better unless they take the same exam.
 
@@ -40,7 +42,7 @@ All three runs are within about 0.003 AUC of each other, which is much smaller t
 | **Actually stayed** | 2,253 (true negative) | 87 (false positive) |
 | **Actually churned** | 447 (false negative) | 213 (true positive) |
 
-The cutoff is the top 10% of scores (300 of 3,000 test customers), not a fixed score like 0.5. The reason is resource limitations: we are on a budget, so we cannot reach every customer the model picks as a possible churner, only those with the highest chance of being a real churner. The 87 false positives are customers who got an offer but would have stayed anyway, and the 447 false negatives are churners we missed. The 447 is where the money is: at about $340 lifetime value each, that is roughly $152K lost, while the 87 only cost a discount each. With only 300 spots and 660 churners, even a perfect model would miss at least 360, so most of the 447 misses come from the budget and only 87 from the model.
+The cutoff is the top 10% of scores (300 of 3,000 test customers), not a fixed score like 0.5. The reason is resource limitations: we are on a budget, so we cannot reach every customer the model picks as a possible churner, only those with the highest chance of being a real churner. The 87 false positives are customers who got an offer but would have stayed anyway, and the 447 false negatives are churners we missed. The 447 is where the money is: at about $340 lifetime value each, that is roughly $152K at stake, while the 87 only cost a discount each. With only 300 spots and 660 churners, even a perfect model would miss at least 360, so most of the 447 misses come from the budget and only 87 from the model.
 
 ## 5. Feature importance
 ![](lab3-evidence/feature-importance.png)
