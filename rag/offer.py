@@ -1,4 +1,4 @@
-import json, numpy as np, faiss, boto3
+import json, os, numpy as np, faiss, boto3
 from rag.ingest import embed           # works once the test lines are gone
 
 MODEL = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
@@ -12,6 +12,43 @@ def retrieve(query, k=K):
     q = embed(query).reshape(1, -1)
     scores, ids = index.search(q, k)
     return [chunks[i] for i in ids[0]]
+
+
+# Retrieval mode: "single" = one tier query (baseline runs), "multi" = one query
+# per need, merged round-robin (the measured improvement). Total stays K either way,
+# so the before/after compares better chunks, not more chunks.
+RETRIEVAL_MODE = os.environ.get("RAG_RETRIEVAL", "multi")
+
+
+def build_queries(c):
+    """One query per thing the offer needs: tier benefits, how they shop, what they buy."""
+    tier = c.get("loyalty_tier", "")
+    cats = " and ".join(c.get("top_categories", []))
+    online = c.get("online_to_store_ratio", 0.5) >= 0.6
+    if online:
+        channel = f"{tier} free return shipping cost, return window, standard shipping threshold for online orders"
+    else:
+        channel = f"{tier} in-store returns, store pickup, return shipping cost for returns by mail"
+    return [
+        f"{tier} tier benefits points earn rate birthday reward early access",
+        channel,
+        f"{cats} merchandise: final sale items, oversized items, gear repair, category exclusions",
+    ]
+
+
+def retrieve_multi(queries, k=K, per_query=3):
+    """Round-robin merge: 1st hit of each query, then 2nd of each..., no duplicates, stop at k."""
+    ranked = [retrieve(q, per_query) for q in queries]
+    out, seen = [], set()
+    for rank in range(per_query):
+        for hits in ranked:
+            h = hits[rank]
+            if h["id"] not in seen:
+                out.append(h)
+                seen.add(h["id"])
+            if len(out) == k:
+                return out
+    return out
 
 def profile_text(c):
     # Weakness #2 fix: turn raw numbers into meaning the model can use
@@ -84,7 +121,10 @@ Rules:
 def generate_offer(customer_context, question):
     tier = customer_context.get("loyalty_tier", "")
     query = f"{tier} tier benefits, retention offers for at-risk members, free shipping threshold"
-    hits = retrieve(query)
+    if RETRIEVAL_MODE == "single":
+        hits = retrieve(query)
+    else:
+        hits = retrieve_multi(build_queries(customer_context))
     profile = "Customer profile: " + profile_text(customer_context)
     user_prompt = f"{profile}\n\nPolicy excerpts:\n" + "\n\n".join(
         f"[{h['id']}]\n{h['text']}" for h in hits) + f"\n\nTask: {question}"
