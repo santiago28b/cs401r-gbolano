@@ -100,3 +100,65 @@ bash scripts/teardown-lab2.sh 2>&1 | tee docs/lab2-destroy-output.txt
 ```
 
 The NAT Gateway bills about $1/day while it exists, so tear down after submitting.
+
+## Lab 3: Model development
+
+Two systems on top of the Lab 2 Feature Store: a churn model (Track A) and a RAG offer generator (Track B). Design reasoning is in `docs/lab3-model-design.md`; the churn evaluation is in `docs/lab3-evaluation-report.md`.
+
+### Prerequisites
+
+- Lab 2 stack up and the feature job run, so the Feature Store offline store has data.
+- MLflow **App** (not a Tracking Server) created once: `aws sagemaker create-mlflow-app --name northstar-mlflow --artifact-store-uri s3://<bucket>/artifacts/mlflow/ --role-arn <MLEngineer role>` (bucket and role from `terraform output`).
+- Python env with `xgboost scikit-learn 'sagemaker<3' mlflow sagemaker-mlflow matplotlib faiss-cpu ragas datasets "langchain-community<0.4" langchain-aws`.
+- Bedrock access verified: `docs/bedrock-access-verification.txt`.
+
+### Train the churn model (Track A)
+
+Trains locally on data pulled from the Feature Store offline store through Athena, logs the run to the MLflow App and registers it as `PendingManualApproval` in `northstar-churn-models`. All hyperparameters come from arguments.
+
+```bash
+export MLFLOW_ARN=<your MLflow App ARN>      # printed by create-mlflow-app
+BUCKET=$(terraform -chdir=infrastructure/environments/dev output -raw s3_bucket_name)
+
+python churn_training_skeleton.py --artifacts-bucket $BUCKET \
+  --model-dir /tmp/l3-model --output-data-dir docs/lab3-evidence \
+  --mlflow-arn $MLFLOW_ARN --run-name final-depth6-autoweight \
+  --max-depth 6 --eta 0.1 --num-round 200 2>&1 | tee docs/lab3-evidence/train-final.log
+```
+
+Outputs:
+
+| File | What |
+|---|---|
+| `docs/lab3-evidence/train-final.log` | console log of the graded run, with the Athena QueryExecutionId |
+| `docs/lab3-evidence/evaluation_metrics.json` | AUC, precision/recall @ top 10%, recency baseline AUC, lift and 95% CI |
+| `docs/lab3-evidence/slice-evaluation.csv` | per loyalty tier: n, positives, AUC, recall, too-small flag |
+| `docs/lab3-evidence/confusion-matrix.png`, `feature-importance.png` | plots from the registered model |
+| `s3://<bucket>/artifacts/models/churn/<run-name>/model.tar.gz` | model artifact referenced by the registry version |
+
+### Build and evaluate the RAG offer generator (Track B)
+
+```bash
+python rag/ingest.py                              # chunk + embed the policy docs -> rag/index/
+python -m rag.run_eval --label baseline-run1      # RAGAS harness, 4 test cases (RAG_RETRIEVAL=single for the old single-query retrieval)
+python -m rag.run_eval --summary                  # combine runs -> docs/lab3-evidence/rag_eval.csv
+jupyter nbconvert --to notebook --execute --inplace notebooks/lab3-demo.ipynb
+```
+
+| Path | What |
+|---|---|
+| `rag/ingest.py` | section chunking, Titan V2 embeddings, FAISS index |
+| `rag/offer.py` | retrieval (single or multi-query) + Claude Haiku 4.5 offer generation |
+| `rag/run_eval.py` | runs `evaluation_harness.py` (Track B) and saves per-run CSVs to `evaluation_results/` |
+| `docs/lab3-evidence/rag_eval.csv` | all RAGAS runs, with offers, chunk IDs and judge model |
+| `docs/lab3-evidence/track-b-examples.md` | 5 correct examples and 2 failure cases with fixes |
+| `notebooks/lab3-demo.ipynb` | end-to-end demo, committed with outputs |
+
+### Evidence and teardown
+
+```bash
+PATH="$CONDA_PREFIX/bin:$PATH" bash scripts/collect-lab3-evidence.sh --track B   # before teardown
+bash scripts/teardown-lab3.sh                                                     # writes docs/lab3-teardown-output.txt
+```
+
+The MLflow App is kept on purpose (no cost, used again in Labs 4 and 6).
