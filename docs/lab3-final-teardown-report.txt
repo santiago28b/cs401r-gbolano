@@ -1,0 +1,93 @@
+==> Lab 2 teardown
+    Account : 031310758774
+    Region  : us-east-1
+    Bucket  : northstar-dev-data-031310758774
+
+{
+    "BucketArn": "arn:aws:s3:::northstar-dev-data-031310758774",
+    "BucketRegion": "us-east-1",
+    "AccessPointAlias": false
+}
+[1/7] Emptying northstar-dev-data-031310758774 (all versions and delete markers)
+      removed 110 Versions
+[2/7] Removing Feature Store Glue catalog database
+      deleted sagemaker_featurestore
+[2b/7] Removing orphaned Glue network interfaces
+[3/7] terraform destroy
+[0m[1mmodule.vpc.aws_security_group.this: Destruction complete after 1s[0m
+[0m[1mmodule.vpc.aws_vpc.this: Destroying... [id=vpc-0c9e05dfcff0ad2ab][0m[0m
+[0m[1mmodule.vpc.aws_vpc.this: Destruction complete after 1s[0m
+[0m[1m[32m
+Destroy complete! Resources: 34 destroyed.[0m
+[4/7] Removing orphaned SageMaker Studio EFS filesystems
+[5/7] Removing orphaned ENIs and SageMaker NFS security groups
+[6/7] Removing orphaned SageMaker lineage contexts and artifacts
+      unlinked 84767853d5639feeac855a898e92d46a -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked e574efdd5d50a573ec8ad4703986c48a -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked 4e05925b0fab5b2a504066892c07ec0c -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked 86b40ae2a2871356b55b9f18d8835dc5 -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked 3ed3a6e35ff74feefced20aac515d847 -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked 1cb948a58c11112d8525ba2ddfc26c06 -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked northstar-dev-customer-features-1792010778 -> northstar-dev-customer-features-1792010778-feature-group-pipeline-version
+      unlinked northstar-dev-customer-features-1792010778 -> northstar-dev-customer-features-1792010778-feature-group-pipeline
+      unlinked 4265915006931567e72772b00173bff6 -> 84767853d5639feeac855a898e92d46a
+      unlinked 34613965d4898b4636208b283770c92d -> 84767853d5639feeac855a898e92d46a
+      unlinked northstar-churn-models-6-1792087288-aws-model-package -> 84767853d5639feeac855a898e92d46a
+      unlinked northstar-churn-models-6-PendingManualApproval-1792087288-aws-model-package -> 84767853d5639feeac855a898e92d46a
+      unlinked c1e6003abce8a2c27c8d1cc53dbbe44e -> e574efdd5d50a573ec8ad4703986c48a
+      unlinked 34613965d4898b4636208b283770c92d -> e574efdd5d50a573ec8ad4703986c48a
+      unlinked northstar-churn-models-5-1792085246-aws-model-package -> e574efdd5d50a573ec8ad4703986c48a
+      unlinked northstar-churn-models-5-PendingManualApproval-1792085246-aws-model-package -> e574efdd5d50a573ec8ad4703986c48a
+      unlinked 9309c50d0550cb0ba649290f291d672d -> 4e05925b0fab5b2a504066892c07ec0c
+      unlinked 34613965d4898b4636208b283770c92d -> 4e05925b0fab5b2a504066892c07ec0c
+      unlinked northstar-churn-models-4-1792084498-aws-model-package -> 4e05925b0fab5b2a504066892c07ec0c
+      unlinked northstar-churn-models-4-PendingManualApproval-1792084498-aws-model-package -> 4e05925b0fab5b2a504066892c07ec0c
+      unlinked 587c7b56cf964639686c58cda39cbebd -> 86b40ae2a2871356b55b9f18d8835dc5
+      unlinked 34613965d4898b4636208b283770c92d -> 86b40ae2a2871356b55b9f18d8835dc5
+      unlinked northstar-churn-models-3-1792084460-aws-model-package -> 86b40ae2a2871356b55b9f18d8835dc5
+      unlinked northstar-churn-models-3-PendingManualApproval-1792084460-aws-model-package -> 86b40ae2a2871356b55b9f18d8835dc5
+      unlinked d93aef36a3c676dad2e51b1c61db1a25 -> 3ed3a6e35ff74feefced20aac515d847
+      unlinked 34613965d4898b4636208b283770c92d -> 3ed3a6e35ff74feefced20aac515d847
+      unlinked northstar-churn-models-2-1792084147-aws-model-package -> 3ed3a6e35ff74feefced20aac515d847
+      unlinked northstar-churn-models-2-PendingManualApproval-1792084147-aws-model-package -> 3ed3a6e35ff74feefced20aac515d847
+      unlinked 0cd9b0814497d27faf1d72a49a47cc2e -> 1cb948a58c11112d8525ba2ddfc26c06
+      unlinked 34613965d4898b4636208b283770c92d -> 1cb948a58c11112d8525ba2ddfc26c06
+      unlinked northstar-churn-models-1-1792083356-aws-model-package -> 1cb948a58c11112d8525ba2ddfc26c06
+      unlinked northstar-churn-models-1-PendingManualApproval-1792083356-aws-model-package -> 1cb948a58c11112d8525ba2ddfc26c06
+      unlinked northstar-dev-customer-features-1792010778 -> 89289e805846f7c03741d3c45a7ba849
+      deleted artifact 4265915006931567e72772b00173bff6
+      deleted artifact 84767853d5639feeac855a898e92d46a
+      deleted artifact c1e6003abce8a2c27c8d1cc53dbbe44e
+      deleted artifact e574efdd5d50a573ec8ad4703986c48a
+      deleted artifact 9309c50d0550cb0ba649290f291d672d
+      deleted artifact 4e05925b0fab5b2a504066892c07ec0c
+      deleted artifact 587c7b56cf964639686c58cda39cbebd
+      deleted artifact 86b40ae2a2871356b55b9f18d8835dc5
+      deleted artifact d93aef36a3c676dad2e51b1c61db1a25
+      deleted artifact 3ed3a6e35ff74feefced20aac515d847
+      deleted artifact 0cd9b0814497d27faf1d72a49a47cc2e
+      deleted artifact 34613965d4898b4636208b283770c92d
+      deleted artifact 1cb948a58c11112d8525ba2ddfc26c06
+      deleted artifact 89289e805846f7c03741d3c45a7ba849
+      deleted context northstar-churn-models-1792083355-aws-model-package-group
+      deleted context northstar-dev-customer-features-1792010778-feature-group-pipeline-version
+      deleted context northstar-dev-customer-features-1792010778
+      deleted context northstar-dev-customer-features-1792010778-feature-group-pipeline
+      deleted log group /aws-glue/crawlers
+      deleted log group /aws-glue/jobs/error
+      deleted log group /aws-glue/jobs/logs-v2
+      deleted log group /aws-glue/jobs/output
+[7/7] Verifying teardown
+      NAT gateways           OK
+      Elastic IPs            OK
+      SageMaker domains      OK
+      Feature groups         OK
+      EFS filesystems        OK
+      Glue jobs              OK
+      NorthStar VPCs         OK
+      Lineage contexts       OK
+      Lineage artifacts      OK
+      Glue databases         OK
+
+==> Teardown complete. No billable Lab 2 resources remain.
+    The Terraform state bucket is intentionally retained for Lab 3.
