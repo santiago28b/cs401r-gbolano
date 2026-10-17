@@ -19,7 +19,6 @@ Chunk IDs are `<document>-<n>`, where n is the section number (e.g. `POL-LOY-011
 
 **Why this is correct behavior:** It did not hallucinate. Every benefit comes from the policy (`POL-LOY-011-4`: free standard shipping always, free return shipping, 1.5× points, 30-day window), and it did not promise the Platinum 60-day window or free expedited shipping. It also turns his shopping into a points opportunity. Small caveat: "free return shipping on outdoor gear and footwear" ties a store-wide benefit to his categories, the same scope issue as Failure 2.
 
-
 ### 2. Bronze, in store, Apparel only
 
 - **Run:** `multiquery-run2` · **Customer:** `CUST-10000904`
@@ -32,7 +31,6 @@ Chunk IDs are `<document>-<n>`, where n is the section number (e.g. `POL-LOY-011
 > Come back to Apparel and earn 1 point per $1 spent—your points are valuable and expire 18 months from your last purchase, so don't let them disappear. As a Bronze member, you can return items in store immediately at any of our 400 locations, making it easy to find exactly what works for you.
 
 **Why this is correct behavior:** These claims are correct on the offer. We can see it offers 1 point per $1 spent (`POL-LOY-011-3`). The claim that points expire 18 months after the last purchase is true (`POL-LOY-011-3`). It prompts and encourages the customer, letting them go away, and also states the return policies for the Bronze member are correct. 
-
 
 ### 3. Platinum, high value, broad categories
 
@@ -47,7 +45,6 @@ Chunk IDs are `<document>-<n>`, where n is the section number (e.g. `POL-LOY-011
 
 **Why this is correct behavior:** What I like about this is that it recognizes the shopping habits of the customer. In this case, we know that the customer mostly spends on outdoors, and the RAG system recognizes it and encourages him to use his current promotion as a platinum member with 100 annual gear credit. This customer is not super high churn since it's 0.66, but still, the RAG system makes a good offer, in my opinion. 
 
-
 ### 4. Silver, just under the Gold threshold (near-threshold framing)
 
 - **Run:** `multiquery-run2` · **Customer:** `CUST-10000588`
@@ -61,7 +58,6 @@ Chunk IDs are `<document>-<n>`, where n is the section number (e.g. `POL-LOY-011
 
 **Why this is correct behavior:** What I love about this offer is that, without providing exact numbers, it lets the customer know that he's close to reaching a higher tier. It makes a subtle comment that encourages the customer to keep purchasing to get more benefits. It states the current benefit that this person has: 1.25 per purchase, free standard shipping over $50 (`POL-LOY-011-4`), and things like that. I think this is a really good offer. 
 
-
 ### 5. Silver, only Silver benefits
 
 - **Run:** `multiquery-run1` · **Customer:** `CUST-10000588`
@@ -74,7 +70,6 @@ Chunk IDs are `<document>-<n>`, where n is the section number (e.g. `POL-LOY-011
 > As a Silver member, you currently earn 1.25× points on every purchase and get free standard shipping on orders over $50—benefits that add up fast on your Home and Beauty favorites. Your next order in these categories is a great opportunity to stack those rewards toward your goals. Shop now and watch your points grow with every purchase.
 
 **Why this is correct behavior:** I think this is the same thing as the previous offers. It's still the same: Silver member, same benefits as before. I think it's shorter than the other offers, but it also just focuses on the top categories of the customer: Home and Beauty. It recognizes that and goes for an offer or for retention sentence, and it's not making up things. 
-
 
 ## Failure cases (2)
 
@@ -95,7 +90,6 @@ Chunk IDs are `<document>-<n>`, where n is the section number (e.g. `POL-LOY-011
 
 **Proposed fix:** Make the prompt stricter so it removes those urgency words and terms.
 
-
 ### Failure 2: a benefit described with the wrong scope / mechanism
 
 - **Run:** `baseline-run1` · **Customer:** `CUST-10000122`
@@ -112,5 +106,4 @@ Chunk IDs are `<document>-<n>`, where n is the section number (e.g. `POL-LOY-011
 **Root cause:** The model tried to personalize the offer as much as it could and fell into this trap: it took the customer's top categories from the profile and attached them to a benefit.
 
 **Proposed fix:** Add a prompt rule: "Benefits apply store-wide. Mention a category only as a product suggestion, never as a condition of a benefit." The point is that the model should not make assumptions about a benefit's scope; the scope should come from what the RAG system retrieves.
-
 
