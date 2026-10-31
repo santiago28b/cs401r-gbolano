@@ -2,7 +2,7 @@
 # Lab 4 evidence capture. Appends to docs/, never overwrites.
 #
 #   bash scripts/lab4-evidence.sh run  "run 1: first green run"
-#       -> docs/lab4-pipeline-runs.txt  (latest CodePipeline execution: commit,
+#       -> docs/lab4-pipeline-runs.txt   (EXEC_ID=<id> to record a specific run)  (latest CodePipeline execution: commit,
 #          phases, pytest counts, SageMaker steps, where it stopped)
 #
 #   bash scripts/lab4-evidence.sh demo "BEFORE: alarm in OK"
@@ -35,9 +35,15 @@ registry() {
 
 run_summary() {
   local EX ID BID
-  EX=$(aws codepipeline list-pipeline-executions --pipeline-name "$CP" --max-items 1 \
-    --query 'pipelineExecutionSummaries[0].[pipelineExecutionId,status,startTime,sourceRevisions[0].revisionId,sourceRevisions[0].revisionSummary]' \
-    --output text)
+  if [ -n "${EXEC_ID:-}" ]; then
+    EX=$(aws codepipeline get-pipeline-execution --pipeline-name "$CP" --pipeline-execution-id "$EXEC_ID" \
+      --query 'pipelineExecution.[pipelineExecutionId,status,status,artifactRevisions[0].revisionId,artifactRevisions[0].revisionSummary]' \
+      --output text | head -1)
+  else
+    EX=$(aws codepipeline list-pipeline-executions --pipeline-name "$CP" --max-items 1 \
+      --query 'pipelineExecutionSummaries[0].[pipelineExecutionId,status,startTime,sourceRevisions[0].revisionId,sourceRevisions[0].revisionSummary]' \
+      --output text | head -1)
+  fi
   ID=$(echo "$EX" | cut -f1)
   echo "-- CodePipeline ${CP} execution ${ID}"
   echo "   status:  $(echo "$EX" | cut -f2)   started: $(echo "$EX" | cut -f3)"

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Save the FULL CodeBuild log of the latest northstar-pipeline run to a file.
 #   bash scripts/lab4-save-build-log.sh docs/lab4-build-green.log
-#   bash scripts/lab4-save-build-log.sh docs/lab4-build-failed.log
+#   bash scripts/lab4-save-build-log.sh docs/lab4-build-failed.log [execution-id]
 set -euo pipefail
 OUT="${1:?usage: bash scripts/lab4-save-build-log.sh docs/<name>.log}"
 CP=northstar-pipeline
-EX=$(aws codepipeline list-pipeline-executions --pipeline-name "$CP" --max-items 1 \
-  --query 'pipelineExecutionSummaries[0].pipelineExecutionId' --output text)
+# Optional 2nd arg: a specific CodePipeline execution id (default: latest).
+EX="${2:-$(aws codepipeline list-pipeline-executions --pipeline-name "$CP" --max-items 1 \
+  --query 'pipelineExecutionSummaries[0].pipelineExecutionId' --output text | head -1)}"
 BID=$(aws codepipeline list-action-executions --pipeline-name "$CP" --filter pipelineExecutionId="$EX" \
   --query "actionExecutionDetails[?actionName=='RunTestsAndTrain'].output.executionResult.externalExecutionId | [0]" \
   --output text)
