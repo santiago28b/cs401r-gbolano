@@ -1,0 +1,18 @@
+$ MLFLOW_APP_ARN=arn:aws:sagemaker:us-east-1:031310758774:mlflow-app/app-ALTFQ5DTXOQN python3 scripts/lab4_mlflow_runs.py
+# captured 2026-10-31 from the SageMaker MLflow App (CreateMlflowApp, not a Tracking Server).
+# These are deliberate MLflow runs from Lab 3, not the Experiments a SageMaker Pipeline auto-creates.
+
+mlflow.search_runs  tracking_uri=arn:aws:sagemaker:us-east-1:031310758774:mlflow-app/app-ALTFQ5DTXOQN
+experiment=northstar-churn  runs=7
+
+runName                  start_time                        max_depth eta num_round min_child_weight subsample colsample_bytree scale_pos_weight  xgboost_version auc_roc baseline_auc lift_ci_low lift_ci_high precision_top10 recall_top10
+test-tracking            2026-10-15 16:30:57.287+00:00     6         0.1 200       5                0.8       0.8              3.544805194805195 3.2.0           0.7804  0.7233       0.0373      0.0756       0.7100          0.3227
+test-register            2026-10-15 16:55:58.326+00:00     6         0.1 200       5                0.8       0.8              3.544805194805195 3.2.0           0.7804  0.7233       0.0373      0.0756       0.7100          0.3227
+test-plots               2026-10-15 17:09:27.108+00:00     6         0.1 200       5                0.8       0.8              3.544805194805195 3.2.0           0.7804  0.7233       0.0373      0.0756       0.7100          0.3227
+exp1-default             2026-10-15 17:14:21.132+00:00     6         0.1 200       5                0.8       0.8              3.544805194805195 3.2.0           0.7804  0.7233       0.0373      0.0756       0.7100          0.3227
+exp2-shallow             2026-10-15 17:14:58.881+00:00     3         0.1 200       5                0.8       0.8              3.544805194805195 3.2.0           0.7802  0.7233       0.0377      0.0752       0.7167          0.3258
+exp3-no-weight           2026-10-15 17:27:29.067+00:00     6         0.1 200       5                0.8       0.8              1.0               3.2.0           0.7805  0.7233       0.0376      0.0756       0.7033          0.3197
+final-depth6-autoweight  2026-10-15 18:01:30.095+00:00     6         0.1 200       5                0.8       0.8              3.544805194805195 3.2.0           0.7804  0.7233       0.0373      0.0756       0.7100          0.3227
+
+distinct hyperparameter combinations: 3
+  (max_depth 6 + auto scale_pos_weight 3.545 | max_depth 3 + auto weight | max_depth 6 + scale_pos_weight 1.0)
