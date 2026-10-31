@@ -1,0 +1,76 @@
+==> Lab 2 teardown
+    Account : 031310758774
+    Region  : us-east-1
+    Bucket  : northstar-dev-data-031310758774
+
+{
+    "BucketArn": "arn:aws:s3:::northstar-dev-data-031310758774",
+    "BucketRegion": "us-east-1",
+    "AccessPointAlias": false
+}
+[1/7] Emptying northstar-dev-data-031310758774 (all versions and delete markers)
+      removed 113 Versions
+[2/7] Removing Feature Store Glue catalog database
+      deleted sagemaker_featurestore
+[2b/7] Removing orphaned Glue network interfaces
+[3/7] terraform destroy
+[0m[1mmodule.vpc.aws_eip.nat[0]: Destruction complete after 1s[0m
+[0m[1mmodule.vpc.aws_vpc.this: Destruction complete after 1s[0m
+[0m[1m[32m
+Destroy complete! Resources: 34 destroyed.
+[0m[4/7] Removing orphaned SageMaker Studio EFS filesystems
+[5/7] Removing orphaned ENIs and SageMaker NFS security groups
+[6/7] Removing orphaned SageMaker lineage contexts and artifacts
+      unlinked northstar-dev-customer-features-1793473304 -> northstar-dev-customer-features-1793473304-feature-group-pipeline-version
+      unlinked northstar-dev-customer-features-1793473304 -> northstar-dev-customer-features-1793473304-feature-group-pipeline
+      unlinked 09eb1f3dcd9456f4b101e84f0140056f -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked ade582dfc8b60e82c07ca2b6418655c0 -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked 4962a0b1259d689f8e2e7f326b77a370 -> northstar-churn-models-1792083355-aws-model-package-group
+      unlinked b03dd806acbd45b0cd7ff0ef2ef324ce -> 09eb1f3dcd9456f4b101e84f0140056f
+      unlinked 34613965d4898b4636208b283770c92d -> 09eb1f3dcd9456f4b101e84f0140056f
+      unlinked northstar-churn-models-9-1793475779-aws-model-package -> 09eb1f3dcd9456f4b101e84f0140056f
+      unlinked northstar-churn-models-9-PendingManualApproval-1793475779-aws-model-package -> 09eb1f3dcd9456f4b101e84f0140056f
+      unlinked pipelines-94f3xug6bxsq-TrainChurnModel-XsT19N1LCJ-aws-training-job -> b03dd806acbd45b0cd7ff0ef2ef324ce
+      unlinked 62f19045e64a7064df943bbd4396e0f3 -> ade582dfc8b60e82c07ca2b6418655c0
+      unlinked 34613965d4898b4636208b283770c92d -> ade582dfc8b60e82c07ca2b6418655c0
+      unlinked northstar-churn-models-8-1793475175-aws-model-package -> ade582dfc8b60e82c07ca2b6418655c0
+      unlinked northstar-churn-models-8-PendingManualApproval-1793475175-aws-model-package -> ade582dfc8b60e82c07ca2b6418655c0
+      unlinked pipelines-1dqjeojesr50-TrainChurnModel-azoiG0kD5v-aws-training-job -> 62f19045e64a7064df943bbd4396e0f3
+      unlinked northstar-churn-models-7-Rejected-1793480281-aws-model-package -> 4962a0b1259d689f8e2e7f326b77a370
+      unlinked northstar-churn-models-7-Approved-1793474904-aws-model-package -> 4962a0b1259d689f8e2e7f326b77a370
+      unlinked 1917b4bd8a9b71eebf4c19f6c2a663c1 -> 4962a0b1259d689f8e2e7f326b77a370
+      unlinked 34613965d4898b4636208b283770c92d -> 4962a0b1259d689f8e2e7f326b77a370
+      unlinked northstar-churn-models-7-1793474675-aws-model-package -> 4962a0b1259d689f8e2e7f326b77a370
+      unlinked northstar-churn-models-7-PendingManualApproval-1793474675-aws-model-package -> 4962a0b1259d689f8e2e7f326b77a370
+      unlinked pipelines-t4a0wj12nv50-TrainChurnModel-v7Fj7HtmGb-aws-training-job -> 1917b4bd8a9b71eebf4c19f6c2a663c1
+      unlinked northstar-dev-customer-features-1793473304 -> b26e9b301c85ca2f70176b9b5a414f0b
+      deleted artifact 09eb1f3dcd9456f4b101e84f0140056f
+      deleted artifact b03dd806acbd45b0cd7ff0ef2ef324ce
+      deleted artifact ade582dfc8b60e82c07ca2b6418655c0
+      deleted artifact 62f19045e64a7064df943bbd4396e0f3
+      deleted artifact 34613965d4898b4636208b283770c92d
+      deleted artifact 4962a0b1259d689f8e2e7f326b77a370
+      deleted artifact 1917b4bd8a9b71eebf4c19f6c2a663c1
+      deleted artifact b26e9b301c85ca2f70176b9b5a414f0b
+      deleted context northstar-dev-customer-features-1793473304-feature-group-pipeline-version
+      deleted context northstar-dev-customer-features-1793473304-feature-group-pipeline
+      deleted context northstar-dev-customer-features-1793473304
+      deleted context northstar-churn-models-1792083355-aws-model-package-group
+      deleted log group /aws-glue/crawlers
+      deleted log group /aws-glue/jobs/error
+      deleted log group /aws-glue/jobs/logs-v2
+      deleted log group /aws-glue/jobs/output
+[7/7] Verifying teardown
+      NAT gateways           OK
+      Elastic IPs            OK
+      SageMaker domains      OK
+      Feature groups         OK
+      EFS filesystems        OK
+      Glue jobs              OK
+      NorthStar VPCs         OK
+      Lineage contexts       OK
+      Lineage artifacts      STILL PRESENT: 2
+      Glue databases         OK
+
+==> WARNING: teardown NOT verified. Fix anything marked STILL PRESENT or
+    CHECK FAILED and re-run. Resources may still be billing.
