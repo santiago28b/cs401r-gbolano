@@ -1,0 +1,342 @@
+
+==================================================================
+RUN 1 - first green run (commit 96bbdc6): tests -> SageMaker train on spot -> gate -> registered v7 (then Approved as champion)
+captured 2026-10-31T19:34:38Z
+==================================================================
+-- CodePipeline northstar-pipeline execution 0e2210e2-e25d-4fe2-b9e0-15ca69293621
+   status:  Succeeded   started: Succeeded
+   commit:  96bbdc626a26473e550d3787d19e910722dd2114
+   message: {"ProviderType":"GitHub","CommitMessage":"churn_model: monotone constraint on recency (fixes kit monotonicity test; AUC 0.7822)\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AttJjWKbXynuE5nRsCyBus"}
+-- CodePipeline stages (Source -> Build -> ManualApproval)
+-------------------------------------------------------
+|                ListActionExecutions                 |
++-----------------+----------------------+------------+
+|  ManualApproval |  ReviewModelMetrics  |  Succeeded |
+|  Build          |  RunTestsAndTrain    |  Succeeded |
+|  Source         |  GitHubSource        |  Succeeded |
++-----------------+----------------------+------------+
+-- CodeBuild northstar-ci:6c042c62-b18d-45ad-92e1-aacba6cf8746: SUCCEEDED
+   phases (the run stops at the first FAILED phase):
+-------------------------------------------
+|             BatchGetBuilds              |
++-------------------+-------------+-------+
+|  SUBMITTED        |  SUCCEEDED  |  0    |
+|  QUEUED           |  SUCCEEDED  |  1    |
+|  PROVISIONING     |  SUCCEEDED  |  3    |
+|  DOWNLOAD_SOURCE  |  SUCCEEDED  |  2    |
+|  INSTALL          |  SUCCEEDED  |  60   |
+|  PRE_BUILD        |  SUCCEEDED  |  6    |
+|  BUILD            |  SUCCEEDED  |  173  |
+|  POST_BUILD       |  SUCCEEDED  |  0    |
+|  UPLOAD_ARTIFACTS |  SUCCEEDED  |  2    |
+|  FINALIZING       |  SUCCEEDED  |  0    |
+|  COMPLETED        |  None       |  None |
++-------------------+-------------+-------+
+-- Key lines from the build log (pytest summaries, gate, registration)
+[Container] 2026/10/31 19:21:01.677916 Running command echo "=== INSTALL PHASE ==="
+=== INSTALL PHASE ===
+[Container] 2026/10/31 19:22:02.339028 Running command echo "PRE-BUILD PHASE - Tests"
+PRE-BUILD PHASE - Tests
+============================== 52 passed in 1.30s ==============================
+[Container] 2026/10/31 19:22:08.429221 Running command echo "All pre-build tests passed ✓"
+All pre-build tests passed ✓
+[Container] 2026/10/31 19:22:08.491258 Running command echo "BUILD PHASE - Train and evaluate"
+BUILD PHASE - Train and evaluate
+  echo "  [${ELAPSED}s] Pipeline status: $STATUS"
+    echo "Registered: $(cat /tmp/model_package_arn.txt)"
+  [0s] Pipeline status: Executing
+  [30s] Pipeline status: Executing
+  [60s] Pipeline status: Executing
+  [90s] Pipeline status: Executing
+  [120s] Pipeline status: Executing
+  [150s] Pipeline status: Succeeded
+Registered: arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/7
+echo "Training job: $TRAIN_JOB"
+Training job: pipelines-t4a0wj12nv50-TrainChurnModel-v7Fj7HtmGb
+[Container] 2026/10/31 19:24:59.479815 Running command FAIRNESS=""
+if [ -f tests/test_fairness.py ]; then FAIRNESS=tests/test_fairness.py; fi
+python -m pytest tests/test_model.py $FAIRNESS -v -rw --tb=short \
+tests/test_model.py::TestChampionRegression::test_regresses_rule PASSED  [ 73%]
+tests/test_model.py::TestChampionRegression::test_champion_query_asks_for_approved_newest PASSED [ 76%]
+tests/test_model.py::TestChampionRegression::test_champion_auc_read_from_s3_metrics PASSED [ 80%]
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion SKIPPED [ 84%]
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion
+  /codebuild/output/src2314191417/src/tests/test_fairness.py:91: FairnessFlag: FAIRNESS FLAG: recall@top10% gap 28.1% between Bronze (43.5%) and Gold (15.4%) exceeds 10%. Review before approving this model.
+================== 25 passed, 1 skipped, 4 warnings in 1.47s ===================
+[Container] 2026/10/31 19:25:01.611566 Running command echo "=== POST-BUILD PHASE ==="
+=== POST-BUILD PHASE ===
+    --model-approval-status Rejected \
+    --approval-description "Auto-rejected: CodeBuild build ${CODEBUILD_BUILD_ID} (commit ${COMMIT_SHA}) failed after registration."
+  echo "Rejected $PKG"
+    MSG="✅ NorthStar CI passed — commit ${COMMIT_SHA}"
+    MSG="🚨 NorthStar CI FAILED — commit ${COMMIT_SHA}"
+-- Latest SageMaker Pipeline execution (northstar-churn-pipeline)
+   arn:aws:sagemaker:us-east-1:031310758774:pipeline/northstar-churn-pipeline/execution/1dqjeojesr50	Succeeded	codebuild-956e1571	2026-10-31T19:30:28.078000+00:00
+-----------------------------------------------------------
+|               ListPipelineExecutionSteps                |
++-----------------------------------+------------+--------+
+|  RegisterChurnModel-RegisterModel |  Succeeded |  None  |
+|  TrainChurnModel                  |  Succeeded |  None  |
++-----------------------------------+------------+--------+
+-- Model Registry: northstar-churn-models (newest first)
+--------------------------------------------------------------------
+|                         ListModelPackages                        |
++---+-------------------------+------------------------------------+
+|  8|  PendingManualApproval  |  2026-10-31T19:32:55.884000+00:00  |
+|  7|  Approved               |  2026-10-31T19:24:35.891000+00:00  |
+|  6|  PendingManualApproval  |  2026-10-15T18:01:28.760000+00:00  |
+|  5|  PendingManualApproval  |  2026-10-15T17:27:26.020000+00:00  |
+|  4|  PendingManualApproval  |  2026-10-15T17:14:58.019000+00:00  |
+|  3|  PendingManualApproval  |  2026-10-15T17:14:20.099000+00:00  |
+|  2|  PendingManualApproval  |  2026-10-15T17:09:07.161000+00:00  |
+|  1|  PendingManualApproval  |  2026-10-15T16:55:56.416000+00:00  |
++---+-------------------------+------------------------------------+
+
+==================================================================
+RUN 2 - green run with champion v7 Approved (commit 956e157): champion regression test PASSED, registered v8
+captured 2026-10-31T19:34:49Z
+==================================================================
+-- CodePipeline northstar-pipeline execution cdf54f9c-53e8-4886-9b0f-59d73a9869fa
+   status:  InProgress   started: InProgress
+   commit:  956e1571f104297ca1585ccd02c9551434c959e3
+   message: {"ProviderType":"GitHub","CommitMessage":"Lab 4 T3: MLflow App runs export (7 runs, 3 hyperparameter combinations)\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AttJjWKbXynuE5nRsCyBus"}
+-- CodePipeline stages (Source -> Build -> ManualApproval)
+--------------------------------------------------------
+|                 ListActionExecutions                 |
++----------------+----------------------+--------------+
+|  ManualApproval|  ReviewModelMetrics  |  InProgress  |
+|  Build         |  RunTestsAndTrain    |  Succeeded   |
+|  Source        |  GitHubSource        |  Succeeded   |
++----------------+----------------------+--------------+
+-- CodeBuild northstar-ci:298957b3-82ee-4312-89dc-5c102bd55a82: SUCCEEDED
+   phases (the run stops at the first FAILED phase):
+-------------------------------------------
+|             BatchGetBuilds              |
++-------------------+-------------+-------+
+|  SUBMITTED        |  SUCCEEDED  |  0    |
+|  QUEUED           |  SUCCEEDED  |  0    |
+|  PROVISIONING     |  SUCCEEDED  |  2    |
+|  DOWNLOAD_SOURCE  |  SUCCEEDED  |  0    |
+|  INSTALL          |  SUCCEEDED  |  35   |
+|  PRE_BUILD        |  SUCCEEDED  |  4    |
+|  BUILD            |  SUCCEEDED  |  166  |
+|  POST_BUILD       |  SUCCEEDED  |  0    |
+|  UPLOAD_ARTIFACTS |  SUCCEEDED  |  1    |
+|  FINALIZING       |  SUCCEEDED  |  0    |
+|  COMPLETED        |  None       |  None |
++-------------------+-------------+-------+
+-- Key lines from the build log (pytest summaries, gate, registration)
+[Container] 2026/10/31 19:29:43.478446 Running command echo "=== INSTALL PHASE ==="
+=== INSTALL PHASE ===
+[Container] 2026/10/31 19:30:18.756652 Running command echo "PRE-BUILD PHASE - Tests"
+PRE-BUILD PHASE - Tests
+============================== 52 passed in 0.91s ==============================
+[Container] 2026/10/31 19:30:23.270071 Running command echo "All pre-build tests passed ✓"
+All pre-build tests passed ✓
+[Container] 2026/10/31 19:30:23.316041 Running command echo "BUILD PHASE - Train and evaluate"
+BUILD PHASE - Train and evaluate
+  echo "  [${ELAPSED}s] Pipeline status: $STATUS"
+    echo "Registered: $(cat /tmp/model_package_arn.txt)"
+  [0s] Pipeline status: Executing
+  [30s] Pipeline status: Executing
+  [60s] Pipeline status: Executing
+  [90s] Pipeline status: Executing
+  [120s] Pipeline status: Executing
+  [150s] Pipeline status: Succeeded
+Registered: arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/8
+echo "Training job: $TRAIN_JOB"
+Training job: pipelines-1dqjeojesr50-TrainChurnModel-azoiG0kD5v
+[Container] 2026/10/31 19:33:07.633729 Running command FAIRNESS=""
+if [ -f tests/test_fairness.py ]; then FAIRNESS=tests/test_fairness.py; fi
+python -m pytest tests/test_model.py $FAIRNESS -v -rw --tb=short \
+tests/test_model.py::TestChampionRegression::test_regresses_rule PASSED  [ 73%]
+tests/test_model.py::TestChampionRegression::test_champion_query_asks_for_approved_newest PASSED [ 76%]
+tests/test_model.py::TestChampionRegression::test_champion_auc_read_from_s3_metrics PASSED [ 80%]
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion PASSED [ 84%]
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion
+  /codebuild/output/src72534181/src/tests/test_fairness.py:91: FairnessFlag: FAIRNESS FLAG: recall@top10% gap 28.1% between Bronze (43.5%) and Gold (15.4%) exceeds 10%. Review before approving this model.
+======================== 26 passed, 5 warnings in 1.54s ========================
+[Container] 2026/10/31 19:33:09.799675 Running command echo "=== POST-BUILD PHASE ==="
+=== POST-BUILD PHASE ===
+    --model-approval-status Rejected \
+    --approval-description "Auto-rejected: CodeBuild build ${CODEBUILD_BUILD_ID} (commit ${COMMIT_SHA}) failed after registration."
+  echo "Rejected $PKG"
+    MSG="✅ NorthStar CI passed — commit ${COMMIT_SHA}"
+    MSG="🚨 NorthStar CI FAILED — commit ${COMMIT_SHA}"
+-- Latest SageMaker Pipeline execution (northstar-churn-pipeline)
+   arn:aws:sagemaker:us-east-1:031310758774:pipeline/northstar-churn-pipeline/execution/1dqjeojesr50	Succeeded	codebuild-956e1571	2026-10-31T19:30:28.078000+00:00
+-----------------------------------------------------------
+|               ListPipelineExecutionSteps                |
++-----------------------------------+------------+--------+
+|  RegisterChurnModel-RegisterModel |  Succeeded |  None  |
+|  TrainChurnModel                  |  Succeeded |  None  |
++-----------------------------------+------------+--------+
+-- Model Registry: northstar-churn-models (newest first)
+--------------------------------------------------------------------
+|                         ListModelPackages                        |
++---+-------------------------+------------------------------------+
+|  8|  PendingManualApproval  |  2026-10-31T19:32:55.884000+00:00  |
+|  7|  Approved               |  2026-10-31T19:24:35.891000+00:00  |
+|  6|  PendingManualApproval  |  2026-10-15T18:01:28.760000+00:00  |
+|  5|  PendingManualApproval  |  2026-10-15T17:27:26.020000+00:00  |
+|  4|  PendingManualApproval  |  2026-10-15T17:14:58.019000+00:00  |
+|  3|  PendingManualApproval  |  2026-10-15T17:14:20.099000+00:00  |
+|  2|  PendingManualApproval  |  2026-10-15T17:09:07.161000+00:00  |
+|  1|  PendingManualApproval  |  2026-10-15T16:55:56.416000+00:00  |
++---+-------------------------+------------------------------------+
+
+==================================================================
+RUN 3 - deliberate failure (commit a72437b): stopped in PRE_BUILD, no training, no registration
+captured 2026-10-31T19:44:34Z
+==================================================================
+-- CodePipeline northstar-pipeline execution cfdb167c-2b67-43e2-aec0-ee567da71d01
+   status:  Failed   started: Failed
+   commit:  a72437bfe5facf26a24b13eff48591c3f630b464
+   message: {"ProviderType":"GitHub","CommitMessage":"Lab 4 failure demo: add a deliberately failing test (reverted next)\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AttJjWKbXynuE5nRsCyBus"}
+-- CodePipeline stages (Source -> Build -> ManualApproval)
+---------------------------------------------
+|           ListActionExecutions            |
++--------+--------------------+-------------+
+|  Build |  RunTestsAndTrain  |  Failed     |
+|  Source|  GitHubSource      |  Succeeded  |
++--------+--------------------+-------------+
+-- CodeBuild northstar-ci:6fe2f45d-672a-4b8e-a72b-fcbb52632c25: FAILED
+   phases (the run stops at the first FAILED phase):
+------------------------------------------
+|             BatchGetBuilds             |
++------------------+-------------+-------+
+|  SUBMITTED       |  SUCCEEDED  |  0    |
+|  QUEUED          |  SUCCEEDED  |  0    |
+|  PROVISIONING    |  SUCCEEDED  |  3    |
+|  DOWNLOAD_SOURCE |  SUCCEEDED  |  0    |
+|  INSTALL         |  SUCCEEDED  |  36   |
+|  PRE_BUILD       |  FAILED     |  4    |
+|  FINALIZING      |  SUCCEEDED  |  0    |
+|  COMPLETED       |  None       |  None |
++------------------+-------------+-------+
+-- Key lines from the build log (pytest summaries, gate, registration)
+[Container] 2026/10/31 19:36:17.952231 Running command echo "=== INSTALL PHASE ==="
+=== INSTALL PHASE ===
+[Container] 2026/10/31 19:36:54.352740 Running command echo "PRE-BUILD PHASE - Tests"
+PRE-BUILD PHASE - Tests
+tests/test_deliberate_failure.py::test_deliberate_failure_for_demo FAILED [ 54%]
+FAILED tests/test_deliberate_failure.py::test_deliberate_failure_for_demo - A...
+========================= 1 failed, 52 passed in 0.93s =========================
+[Container] 2026/10/31 19:36:58.888507 Phase complete: PRE_BUILD State: FAILED
+-- Latest SageMaker Pipeline execution (northstar-churn-pipeline)
+   arn:aws:sagemaker:us-east-1:031310758774:pipeline/northstar-churn-pipeline/execution/94f3xug6bxsq	Succeeded	codebuild-9c27211d	2026-10-31T19:40:44.635000+00:00
+-----------------------------------------------------------
+|               ListPipelineExecutionSteps                |
++-----------------------------------+------------+--------+
+|  RegisterChurnModel-RegisterModel |  Succeeded |  None  |
+|  TrainChurnModel                  |  Succeeded |  None  |
++-----------------------------------+------------+--------+
+-- Model Registry: northstar-churn-models (newest first)
+--------------------------------------------------------------------
+|                         ListModelPackages                        |
++---+-------------------------+------------------------------------+
+|  9|  PendingManualApproval  |  2026-10-31T19:42:59.917000+00:00  |
+|  8|  PendingManualApproval  |  2026-10-31T19:32:55.884000+00:00  |
+|  7|  Approved               |  2026-10-31T19:24:35.891000+00:00  |
+|  6|  PendingManualApproval  |  2026-10-15T18:01:28.760000+00:00  |
+|  5|  PendingManualApproval  |  2026-10-15T17:27:26.020000+00:00  |
+|  4|  PendingManualApproval  |  2026-10-15T17:14:58.019000+00:00  |
+|  3|  PendingManualApproval  |  2026-10-15T17:14:20.099000+00:00  |
+|  2|  PendingManualApproval  |  2026-10-15T17:09:07.161000+00:00  |
+|  1|  PendingManualApproval  |  2026-10-15T16:55:56.416000+00:00  |
++---+-------------------------+------------------------------------+
+
+==================================================================
+RUN 4 - revert (commit 9c27211): green again, registered a new PendingManualApproval version
+captured 2026-10-31T19:44:44Z
+==================================================================
+-- CodePipeline northstar-pipeline execution 3cf0e697-2737-430b-8df2-0e805007db04
+   status:  InProgress   started: InProgress
+   commit:  9c27211dc12d491444fb72eb419372e7a1193c55
+   message: {"ProviderType":"GitHub","CommitMessage":"Revert Lab 4 failure demo: remove the deliberately failing test\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AttJjWKbXynuE5nRsCyBus"}
+-- CodePipeline stages (Source -> Build -> ManualApproval)
+---------------------------------------------
+|           ListActionExecutions            |
++--------+--------------------+-------------+
+|  Build |  RunTestsAndTrain  |  Succeeded  |
+|  Source|  GitHubSource      |  Succeeded  |
++--------+--------------------+-------------+
+-- CodeBuild northstar-ci:82bda056-c5f3-49e9-82fc-38f1f6ef511c: SUCCEEDED
+   phases (the run stops at the first FAILED phase):
+-------------------------------------------
+|             BatchGetBuilds              |
++-------------------+-------------+-------+
+|  SUBMITTED        |  SUCCEEDED  |  0    |
+|  QUEUED           |  SUCCEEDED  |  0    |
+|  PROVISIONING     |  SUCCEEDED  |  3    |
+|  DOWNLOAD_SOURCE  |  SUCCEEDED  |  2    |
+|  INSTALL          |  SUCCEEDED  |  61   |
+|  PRE_BUILD        |  SUCCEEDED  |  6    |
+|  BUILD            |  SUCCEEDED  |  174  |
+|  POST_BUILD       |  SUCCEEDED  |  0    |
+|  UPLOAD_ARTIFACTS |  SUCCEEDED  |  1    |
+|  FINALIZING       |  SUCCEEDED  |  0    |
+|  COMPLETED        |  None       |  None |
++-------------------+-------------+-------+
+-- Key lines from the build log (pytest summaries, gate, registration)
+[Container] 2026/10/31 19:39:25.526454 Running command echo "=== INSTALL PHASE ==="
+=== INSTALL PHASE ===
+[Container] 2026/10/31 19:40:26.724996 Running command echo "PRE-BUILD PHASE - Tests"
+PRE-BUILD PHASE - Tests
+============================== 52 passed in 1.33s ==============================
+[Container] 2026/10/31 19:40:33.193098 Running command echo "All pre-build tests passed ✓"
+All pre-build tests passed ✓
+[Container] 2026/10/31 19:40:33.236623 Running command echo "BUILD PHASE - Train and evaluate"
+BUILD PHASE - Train and evaluate
+  echo "  [${ELAPSED}s] Pipeline status: $STATUS"
+    echo "Registered: $(cat /tmp/model_package_arn.txt)"
+  [0s] Pipeline status: Executing
+  [30s] Pipeline status: Executing
+  [60s] Pipeline status: Executing
+  [90s] Pipeline status: Executing
+  [120s] Pipeline status: Executing
+  [150s] Pipeline status: Succeeded
+Registered: arn:aws:sagemaker:us-east-1:031310758774:model-package/northstar-churn-models/9
+echo "Training job: $TRAIN_JOB"
+Training job: pipelines-94f3xug6bxsq-TrainChurnModel-XsT19N1LCJ
+[Container] 2026/10/31 19:43:24.926873 Running command FAIRNESS=""
+if [ -f tests/test_fairness.py ]; then FAIRNESS=tests/test_fairness.py; fi
+python -m pytest tests/test_model.py $FAIRNESS -v -rw --tb=short \
+tests/test_model.py::TestChampionRegression::test_regresses_rule PASSED  [ 73%]
+tests/test_model.py::TestChampionRegression::test_champion_query_asks_for_approved_newest PASSED [ 76%]
+tests/test_model.py::TestChampionRegression::test_champion_auc_read_from_s3_metrics PASSED [ 80%]
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion PASSED [ 84%]
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion
+tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champion
+  /codebuild/output/src3630692429/src/tests/test_fairness.py:91: FairnessFlag: FAIRNESS FLAG: recall@top10% gap 28.1% between Bronze (43.5%) and Gold (15.4%) exceeds 10%. Review before approving this model.
+======================== 26 passed, 5 warnings in 1.68s ========================
+[Container] 2026/10/31 19:43:27.462963 Running command echo "=== POST-BUILD PHASE ==="
+=== POST-BUILD PHASE ===
+    --model-approval-status Rejected \
+    --approval-description "Auto-rejected: CodeBuild build ${CODEBUILD_BUILD_ID} (commit ${COMMIT_SHA}) failed after registration."
+  echo "Rejected $PKG"
+    MSG="✅ NorthStar CI passed — commit ${COMMIT_SHA}"
+    MSG="🚨 NorthStar CI FAILED — commit ${COMMIT_SHA}"
+-- Latest SageMaker Pipeline execution (northstar-churn-pipeline)
+   arn:aws:sagemaker:us-east-1:031310758774:pipeline/northstar-churn-pipeline/execution/94f3xug6bxsq	Succeeded	codebuild-9c27211d	2026-10-31T19:40:44.635000+00:00
+-----------------------------------------------------------
+|               ListPipelineExecutionSteps                |
++-----------------------------------+------------+--------+
+|  RegisterChurnModel-RegisterModel |  Succeeded |  None  |
+|  TrainChurnModel                  |  Succeeded |  None  |
++-----------------------------------+------------+--------+
+-- Model Registry: northstar-churn-models (newest first)
+--------------------------------------------------------------------
+|                         ListModelPackages                        |
++---+-------------------------+------------------------------------+
+|  9|  PendingManualApproval  |  2026-10-31T19:42:59.917000+00:00  |
+|  8|  PendingManualApproval  |  2026-10-31T19:32:55.884000+00:00  |
+|  7|  Approved               |  2026-10-31T19:24:35.891000+00:00  |
+|  6|  PendingManualApproval  |  2026-10-15T18:01:28.760000+00:00  |
+|  5|  PendingManualApproval  |  2026-10-15T17:27:26.020000+00:00  |
+|  4|  PendingManualApproval  |  2026-10-15T17:14:58.019000+00:00  |
+|  3|  PendingManualApproval  |  2026-10-15T17:14:20.099000+00:00  |
+|  2|  PendingManualApproval  |  2026-10-15T17:09:07.161000+00:00  |
+|  1|  PendingManualApproval  |  2026-10-15T16:55:56.416000+00:00  |
++---+-------------------------+------------------------------------+
