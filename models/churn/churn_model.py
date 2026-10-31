@@ -115,6 +115,9 @@ def train_model(X_train, y_train, X_val, y_val, seed: int = 42) -> tuple[xgb.Boo
         "subsample": HYPERPARAMS["subsample"],
         "colsample_bytree": HYPERPARAMS["colsample_bytree"],
         "scale_pos_weight": spw,
+        # Churn risk may only rise as days_since_last_purchase rises (business
+        # rule; tests/test_model.py checks it). +1 on recency, free elsewhere.
+        "monotone_constraints": "(" + ",".join("1" if c == BASELINE_FEATURE else "0" for c in FEATURE_COLUMNS) + ")",
         "seed": seed,
         "verbosity": 1,
     }
