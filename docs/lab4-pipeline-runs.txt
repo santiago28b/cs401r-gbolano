@@ -340,3 +340,12 @@ tests/test_model.py::TestChampionRegression::test_candidate_not_worse_than_champ
 |  2|  PendingManualApproval  |  2026-10-15T17:09:07.161000+00:00  |
 |  1|  PendingManualApproval  |  2026-10-15T16:55:56.416000+00:00  |
 +---+-------------------------+------------------------------------+
+
+==================================================================
+SageMaker Pipeline executions (northstar-churn-pipeline): start, status, name
+captured 2026-10-31T20:38Z
+==================================================================
+2026-10-31T19:40:44.635000+00:00	Succeeded	codebuild-9c27211d   (run 4, revert -> registered v9)
+2026-10-31T19:30:28.078000+00:00	Succeeded	codebuild-956e1571   (run 2 -> registered v8)
+2026-10-31T19:22:19.730000+00:00	Succeeded	codebuild-96bbdc62   (run 1 -> registered v7, Approved as champion)
+(run 3, commit a72437b, has no SageMaker execution: it failed in PRE_BUILD before the build phase.)

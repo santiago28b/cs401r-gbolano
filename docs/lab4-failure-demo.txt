@@ -1,7 +1,7 @@
 ##### LAB 4 FAILURE DEMO #####
 Plan: (1) BEFORE: alarm OK, registry state. (2) push a commit adding tests/test_deliberate_failure.py (assert 1+1==3). Expect: run stops in CodeBuild PRE_BUILD (the phase that runs pytest tests/), BUILD never starts so no SageMaker training and no new registry version, alarm northstar-ci-build-failure -> ALARM, alarm history Action = Successfully executed action. (3) revert, push: green build, registry gains a PendingManualApproval version, alarm -> OK.
 
-== BEFORE (state at the start of the demo) ==
+===== BEFORE =====
 2026-10-31T19:35:51Z
 northstar-ci-build-failure	OK	2026-10-31T19:21:03.196000+00:00
 email	<email redacted>	arn:aws:sns:us-east-1:031310758774:northstar-model-approvals:dfe151f5-f03b-43bf-9ad8-f0465799e300
@@ -14,7 +14,7 @@ email	<email redacted>	arn:aws:sns:us-east-1:031310758774:northstar-model-approv
 +---+-------------------------+------------------------------------+
 
 ==================================================================
-== FAILED RUN: commit a72437b adds tests/test_deliberate_failure.py ==
+===== AFTER FAILED RUN (commit a72437b adds tests/test_deliberate_failure.py) =====
 captured 2026-10-31T19:37:51Z
 ==================================================================
 -- CodePipeline northstar-pipeline execution cfdb167c-2b67-43e2-aec0-ee567da71d01
@@ -82,7 +82,7 @@ ALARM	2026-10-31T19:37:03.195000+00:00	Threshold Crossed: 1 datapoint [1.0 (31/1
 +---+-------------------------+------------------------------------+
 
 ==================================================================
-== REVERT RUN: commit 9c27211 removes the failing test ==
+===== AFTER REVERT (commit 9c27211 removes the failing test) =====
 captured 2026-10-31T19:44:22Z
 ==================================================================
 -- CodePipeline northstar-pipeline execution 3cf0e697-2737-430b-8df2-0e805007db04
@@ -184,3 +184,12 @@ OK	2026-10-31T19:44:03.197000+00:00	Threshold Crossed: 1 datapoint [0.0 (31/10/2
 |  2|  PendingManualApproval  |  2026-10-15T17:09:07.161000+00:00  |
 |  1|  PendingManualApproval  |  2026-10-15T16:55:56.416000+00:00  |
 +---+-------------------------+------------------------------------+
+
+===== SUMMARY =====
+BEFORE:            alarm OK; newest package v8; email subscription confirmed (subscription ARN, not PendingConfirmation)
+AFTER FAILED RUN:  build FAILED; PRE_BUILD FAILED (1 failed, 52 passed); BUILD never started -> no training;
+                   newest package still v8; alarm ALARM; history "Successfully executed action ... northstar-model-approvals"
+AFTER REVERT:      build SUCCEEDED through POST_BUILD; registry gained v9 (PendingManualApproval); alarm back to OK
+Emails received (Gmail, from no-reply@sns.amazonaws.com): 'ALARM: "northstar-ci-build-failure" in US East (N. Virginia)'
+and then 'OK: "northstar-ci-build-failure" ...'. Screenshot: docs/lab4-alarm-email.png
+Full registry at the end: docs/lab4-model-registry.json

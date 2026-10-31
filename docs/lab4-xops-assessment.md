@@ -1,6 +1,6 @@
 # Lab 4: XOps, CI/CD and MLOps configuration
 
-## 1. CI/CD pipeline: the five phases and where they run (Task 2)
+## Pipeline Stage Mapping
 
 Implementation: AWS CodePipeline + CodeBuild + a SageMaker Pipeline, defined in `pipeline.yaml`, `buildspec.yml` and `models/churn/pipeline_definition.py`.
 
@@ -18,11 +18,11 @@ Five phases run in three CodePipeline stages (Source, Build, ManualApproval). St
 
 Failure notification: CloudWatch alarm `northstar-ci-build-failure` on `AWS/CodeBuild FailedBuilds` (emitted even when pre_build fails, unlike a metric published from post_build) -> SNS `northstar-model-approvals` -> email. Proof: `docs/lab4-failure-demo.txt`.
 
-Evidence: `docs/lab4-pipeline-runs.txt`, `docs/lab4-build-green.log`, `docs/lab4-failure-demo.txt`, `docs/lab4-build-failed.log`.
+Evidence: `docs/lab4-pipeline-runs.txt` (4 runs: 3 green, 1 deliberate failure), `docs/lab4-build-green.log` (run 2, the first green run after v7 was Approved: every test file PASSED, including `test_candidate_not_worse_than_champion` with `champion v7 auc=0.7854; candidate auc=0.7854`), `docs/lab4-failure-demo.txt`, `docs/lab4-build-failed.log`, `docs/lab4-model-registry.json`, `docs/lab4-alarm-email.png`.
 
-## 2. MLOps configuration (Task 3)
+Note: the revert run (run 4) is the last green run and also compared against v7. Its full log was lost when I deleted the CodeBuild log group during teardown, before I saw the Oct 23 evidence update. Its phases and result are in `docs/lab4-pipeline-runs.txt`, and run 2's log shows the same test suite and champion check on the same code (run 4 = run 2 + the failure/revert pair).
 
-### Champion-challenger criterion
+## Champion-Challenger
 
 A challenger replaces the champion only if **both** are true:
 
@@ -33,7 +33,7 @@ Yes or no, nothing in between. Why 0.01: the same code on the same data already 
 
 Note the CI regression test (`tests/test_model.py::TestChampionRegression`) is a different, looser rule on purpose: it only blocks a model that is **worse** by more than 0.02. Passing CI means "safe to consider"; +0.01 is what earns the swap.
 
-### Retraining triggers
+## Retraining Triggers
 
 **Scheduled:** retrain **every week** (Monday 06:00 UTC). An **Amazon EventBridge Scheduler** rule calls `StartPipelineExecution` on `northstar-churn-pipeline` with the latest feature set. Weekly matches how often NorthStar scores churn, so each week's scores come from a model trained on last week's data. The Glue feature job runs first on the same schedule, so the 48-hour freshness test passes.
 
@@ -44,15 +44,13 @@ Note the CI regression test (`tests/test_model.py::TestChampionRegression`) is a
 
 Both go through the same CI gates, and a human still approves the result.
 
-### Experiment tracking
+## Experiment Tracking
 
 `docs/lab4-mlflow-runs.txt`: `mlflow.search_runs` against the SageMaker MLflow App, experiment `northstar-churn`, 7 runs with 3 hyperparameter combinations (max_depth 6 vs 3, scale_pos_weight 3.545 vs 1.0), each with params and metrics logged. The Experiments the SageMaker Pipeline creates by itself are not used as evidence.
 
-### Model lineage
+## Model Lineage
 
-`docs/lab4-model-package.json`: `describe-model-package` for v7. `CustomerMetadataProperties` holds `commit_sha`, `training_data_s3_uri` + `training_data_timestamp`, the training job name, and the evaluation metrics. Written by `scripts/lab4_lineage.py`, which reads them off the training job and the metrics file it uploaded.
-
-## 3. XOps maturity assessment (Task 4)
+`docs/lab4-model-package.json`: `describe-model-package` for v9, the final green run's package (commit `9c27211`). The champion's own lineage is in `docs/lab4-model-package-v7-champion.json` (commit `96bbdc6`). `CustomerMetadataProperties` holds `commit_sha`, `training_data_s3_uri` + `training_data_timestamp`, the training job name, and the evaluation metrics. Written by `scripts/lab4_lineage.py`, which reads them off the training job and the metrics file it uploaded.
 
 ## DataOps Maturity
 
