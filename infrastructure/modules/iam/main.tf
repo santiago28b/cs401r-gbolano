@@ -74,9 +74,33 @@ resource "aws_iam_policy" "ml_engineer" {
           "sagemaker:CreatePresignedMlflowAppUrl",
           "sagemaker:RegisterModel",
           "sagemaker:DescribeModelPackage",
-          "sagemaker:ListModelPackages"
+          "sagemaker:ListModelPackages",
+          # Lab 4: the SageMaker Pipeline runs as this role. It tags every job it
+          # creates and its RegisterModel step calls CreateModelPackage.
+          "sagemaker:AddTags",
+          "sagemaker:ListTags",
+          "sagemaker:CreateModelPackage",
+          "sagemaker:CreateModelPackageGroup",
+          "sagemaker:DescribeModelPackageGroup"
         ]
         Resource = "*"
+      },
+      {
+        # Lab 4: the pipeline (running as MLEngineer) starts a training job and
+        # hands it this same role. Handing a role to a service is iam:PassRole.
+        Sid       = "PassSelfToSageMaker"
+        Effect    = "Allow"
+        Action    = ["iam:PassRole"]
+        Resource  = aws_iam_role.ml_engineer.arn
+        Condition = { StringEquals = { "iam:PassedToService" = "sagemaker.amazonaws.com" } }
+      },
+      {
+        # Lab 4: training jobs publish their metrics to CloudWatch as this role.
+        Sid       = "TrainingJobMetrics"
+        Effect    = "Allow"
+        Action    = ["cloudwatch:PutMetricData"]
+        Resource  = "*"
+        Condition = { StringLike = { "cloudwatch:namespace" = "/aws/sagemaker/*" } }
       },
       {
         Sid    = "StudioSelfService"
@@ -132,7 +156,8 @@ resource "aws_iam_policy" "ml_engineer" {
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams"
         ]
         Resource = "arn:aws:logs:*:*:log-group:/aws/sagemaker/*"
       },

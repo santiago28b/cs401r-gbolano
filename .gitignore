@@ -9,3 +9,9 @@ __pycache__/
 *.zip
 .aws/
 .localstack/
+
+# Lab 4: local copies of pipeline data for running tests (never commit data)
+data/processed/
+data/features/
+data/*.csv
+reports/
