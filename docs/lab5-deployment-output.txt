@@ -129,3 +129,13 @@ Applied quota, ml.m5.large for endpoint usage (L-614B09FD): 30.0
 
 ===== 4. observed traffic split at 9:1 (2026-11-17T01:17:09Z) =====
 canary 17 / champion 183  (n=200)
+
+===== 5. after rollback: weights, then observed split (2026-11-17T03:54:47Z) =====
+champion	1.0
+canary	0.0
+champion 100  (n=100)
+
+===== 6. after teardown: live API (2026-11-17T03:57:04Z) =====
+endpoints: 0
+endpoint configs: 0
+scalable targets: 0
